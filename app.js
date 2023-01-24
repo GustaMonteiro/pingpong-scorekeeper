@@ -25,8 +25,6 @@ p2.button.addEventListener('click', eventFunction(p2, p1));
 window.addEventListener('keydown', function (e) {
   const keyPressed = e.code;
 
-  console.log(keyPressed);
-
   switch (keyPressed) {
     case 'ArrowLeft':
     case 'KeyA':
@@ -38,16 +36,18 @@ window.addEventListener('keydown', function (e) {
     case 'KeyL':
       eventFunction(p2, p1)();
       break;
+    case 'Space':
+      resetGame();
   }
 })
 
-buttonReset.addEventListener('click', function (e) {
-  e.stopPropagation();
+buttonReset.addEventListener('click', resetGame)
 
+function resetGame() {
   for (let p of [p1, p2]) {
     p.drawDisplay.classList.add('hide');
     p.display.style.color = 'black';
-    p.drawDisplay.style.color = 'black'
+    p.drawDisplay.style.color = 'black';
     p.drawScore = 0;
     p.score = 0;
     p.drawDisplay.innerText = '0';
@@ -60,11 +60,11 @@ buttonReset.addEventListener('click', function (e) {
 
   isGameDraw9 = false;
   isGameOver = false;
-})
+}
 
 function eventFunction(player, opponent) {
   return function (e) {
-    if(!isGameOver){
+    if (!isGameOver) {
       updateScore(player);
       if (drawOn9()) switchToDraw9Mode();
       if (gameOver()) endGame(player, opponent);
