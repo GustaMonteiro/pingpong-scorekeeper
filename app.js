@@ -1,6 +1,7 @@
 const buttonReset = document.querySelector('#button-reset');
 
 let isGameDraw9 = false;
+let isGameOver = false;
 
 const p1 = {
   button: document.querySelector('#button-score-player-1'),
@@ -21,6 +22,25 @@ const p2 = {
 p1.button.addEventListener('click', eventFunction(p1, p2));
 p2.button.addEventListener('click', eventFunction(p2, p1));
 
+window.addEventListener('keydown', function (e) {
+  const keyPressed = e.code;
+
+  console.log(keyPressed);
+
+  switch (keyPressed) {
+    case 'ArrowLeft':
+    case 'KeyA':
+    case 'KeyH':
+      eventFunction(p1, p2)();
+      break;
+    case 'ArrowRight':
+    case 'KeyD':
+    case 'KeyL':
+      eventFunction(p2, p1)();
+      break;
+  }
+})
+
 buttonReset.addEventListener('click', function (e) {
   e.stopPropagation();
 
@@ -39,13 +59,16 @@ buttonReset.addEventListener('click', function (e) {
   p2.button.style.backgroundColor = 'blue';
 
   isGameDraw9 = false;
+  isGameOver = false;
 })
 
 function eventFunction(player, opponent) {
   return function (e) {
-    updateScore(player);
-    if (drawOn9()) switchToDraw9Mode();
-    if (isGameOver()) endGame(player, opponent);
+    if(!isGameOver){
+      updateScore(player);
+      if (drawOn9()) switchToDraw9Mode();
+      if (gameOver()) endGame(player, opponent);
+    }
   }
 }
 
@@ -71,6 +94,8 @@ function endGame(winner, loser) {
     winner.drawDisplay.style.color = 'green';
     loser.drawDisplay.style.color = 'red';
   }
+
+  isGameOver = true;
 }
 
 function updateScore(player) {
@@ -83,7 +108,7 @@ function updateScore(player) {
   }
 }
 
-function isGameOver() {
+function gameOver() {
   return (p1.score === 10 || p2.score === 10) || (Math.abs(p1.drawScore - p2.drawScore) > 1);
 }
 
