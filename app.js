@@ -1,85 +1,92 @@
-const buttonScorePlayer1 = document.querySelector('#button-score-player-1');
-const buttonScorePlayer2 = document.querySelector('#button-score-player-2');
 const buttonReset = document.querySelector('#button-reset');
-const scorePlayer1 = document.querySelector('.score-player-1');
-const scorePlayer2 = document.querySelector('.score-player-2');
-const drawScorePlayer1 = document.querySelector('.draw-score-player-1');
-const drawScorePlayer2 = document.querySelector('.draw-score-player-2');
-const controls = document.querySelector('.controls');
-const drawScores = document.querySelectorAll('.draw-score');
-const normalScores = document.querySelectorAll('.normal-score');
-const allScores = document.querySelectorAll('.score');
 
 let isGameDraw9 = false;
 
-controls.addEventListener('click', function (e) {
-  if (!isGameDraw9) {
-    if (e.target.id === 'button-score-player-1')
-      updateScore(scorePlayer1);
-    else if (e.target.id === 'button-score-player-2')
-      updateScore(scorePlayer2);
+const p1 = {
+  button: document.querySelector('#button-score-player-1'),
+  score: 0,
+  drawScore: 0,
+  display: document.querySelector('.score-player-1'),
+  drawDisplay: document.querySelector('.draw-score-player-1'),
+}
 
-    if (someoneWin()) endGame();
+const p2 = {
+  button: document.querySelector('#button-score-player-2'),
+  score: 0,
+  drawScore: 0,
+  display: document.querySelector('.score-player-2'),
+  drawDisplay: document.querySelector('.draw-score-player-2'),
+}
 
-    if (drawOn9()) {
-      for (let el of drawScores)
-        el.classList.remove('hide');
-
-      for (let el of normalScores)
-        el.style.color = 'gray';
-
-      isGameDraw9 = true;
-    }
-  } else {
-    if (e.target.id === 'button-score-player-1')
-      updateScore(drawScorePlayer1);
-    else if (e.target.id === 'button-score-player-2')
-      updateScore(drawScorePlayer2);
-
-    if (differenceOf2()) endGame();
-  }
-})
+p1.button.addEventListener('click', eventFunction(p1, p2));
+p2.button.addEventListener('click', eventFunction(p2, p1));
 
 buttonReset.addEventListener('click', function (e) {
   e.stopPropagation();
-  for (let el of drawScores)
-    el.classList.add('hide');
+
+  for (let p of [p1, p2]) {
+    p.drawDisplay.classList.add('hide');
+    p.display.style.color = 'black';
+    p.drawDisplay.style.color = 'black'
+    p.drawScore = 0;
+    p.score = 0;
+    p.drawDisplay.innerText = '0';
+    p.display.innerText = '0';
+    p.button.disabled = false;
+  }
+
+  p1.button.style.backgroundColor = 'green';
+  p2.button.style.backgroundColor = 'blue';
 
   isGameDraw9 = false;
-
-  for (let el of allScores)
-    el.innerText = '0';
-
-  for (let el of normalScores)
-    el.style.color = 'black';
-
-  buttonScorePlayer1.disabled = false;
-  buttonScorePlayer2.disabled = false;
-  buttonScorePlayer1.style.backgroundColor = 'green';
-  buttonScorePlayer2.style.backgroundColor = 'blue';
 })
 
-function endGame() {
-  buttonScorePlayer1.disabled = true;
-  buttonScorePlayer2.disabled = true;
-  buttonScorePlayer1.style.backgroundColor = 'gray';
-  buttonScorePlayer2.style.backgroundColor = 'gray';
+function eventFunction(player, opponent) {
+  return function (e) {
+    updateScore(player);
+    if (drawOn9()) switchToDraw9Mode();
+    if (isGameOver()) endGame(player, opponent);
+  }
 }
 
-function someoneWin() {
-  return parseInt(scorePlayer1.innerText) === 10 || parseInt(scorePlayer2.innerText) === 10;
+function switchToDraw9Mode() {
+  for (let p of [p1, p2]) {
+    p.drawDisplay.classList.remove('hide');
+    p.display.style.color = 'gray';
+  }
+
+  isGameDraw9 = true;
+}
+
+function endGame(winner, loser) {
+  for (let p of [winner, loser]) {
+    p.button.disabled = true;
+    p.button.style.backgroundColor = 'gray';
+  }
+
+  if (!isGameDraw9) {
+    winner.display.style.color = 'green';
+    loser.display.style.color = 'red';
+  } else {
+    winner.drawDisplay.style.color = 'green';
+    loser.drawDisplay.style.color = 'red';
+  }
 }
 
 function updateScore(player) {
-  let currentScore = parseInt(player.innerText);
-  currentScore++;
-  player.innerText = currentScore;
+  if (!drawOn9()) {
+    player.score++;
+    player.display.innerText = player.score;
+  } else {
+    player.drawScore++;
+    player.drawDisplay.innerText = player.drawScore;
+  }
+}
+
+function isGameOver() {
+  return (p1.score === 10 || p2.score === 10) || (Math.abs(p1.drawScore - p2.drawScore) > 1);
 }
 
 function drawOn9() {
-  return parseInt(scorePlayer1.innerText) === 9 && parseInt(scorePlayer2.innerText) === 9;
-}
-
-function differenceOf2() {
-  return Math.abs(parseInt(drawScorePlayer1.innerText) - parseInt(drawScorePlayer2.innerText)) > 1;
+  return p1.score === 9 && p2.score === 9;
 }
